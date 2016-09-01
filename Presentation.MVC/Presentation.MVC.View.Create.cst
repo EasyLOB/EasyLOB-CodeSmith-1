@@ -1,0 +1,61 @@
+<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+
+<%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
+<%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
+
+<%@ Property Name="Database" Type="String" Category="Database" Description="Database [using Namespace.Data.Database]" %>
+<%@ Property Name="SourceTable" Type="SchemaExplorer.TableSchema" Category="Database" Description="Table" %>
+
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Assembly Name="System.Data" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import Namespace="System.Data" %>
+<%
+if (SourceTable.PrimaryKey == null) {
+    throw new ApplicationException("SourceTable does not contain a primary key.");
+}
+      
+string tableName = TableName(SourceTable.FullName);
+string className = ClassName(SourceTable.FullName, Culture);
+string objectName = ObjectName(SourceTable.FullName, Culture);
+%>
+@model <%= className %>ItemModel
+
+@{
+    ViewBag.Title = AppHelper.PageTitle(<%= className %>Resources.EntitySingular, PresentationResources.Create);
+}
+
+<h3>@ViewBag.Title</h3>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div id="Partial" class="form-inline">
+        @Html.Partial("_<%= className %>Item", Model)
+    </div>
+
+    <div class="z-formButtons">
+        @Html.Raw(@Html.ImageLink("Button_Cancel", MvcHelper.ReadUrlDictionary(Context, "<%= className %>"), "z-buttonCancel", PresentationResources.Cancel))
+        <input id="Button_OK" type="image" class="btn btn-default z-buttonOk" title="@PresentationResources.Create" />
+    </div> 
+}
+
+@Html.OperationResult(Model.OperationResult)
+
+<script>
+    $(function () {
+        var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
+
+        if (model.IsSecurityOperations.IsCreate) {
+            $("#Partial").show();
+            $("#Button_Cancel").show();
+            $("#Button_OK").show();
+        }
+        else {
+            $("#Partial").hide();
+            $("#Button_Cancel").show();
+            $("#Button_OK").hide();
+        }
+    });
+</script>

@@ -1,0 +1,237 @@
+<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+
+<%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
+<%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
+
+<%@ Property Name="Database" Type="String" Category="Database" Description="Database [using Namespace.Data.Database]" %>
+<%@ Property Name="SourceTable" Type="SchemaExplorer.TableSchema" Category="Database" Description="Table" %>
+
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Assembly Name="System.Data" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import Namespace="System.Data" %>
+<%
+if (SourceTable.PrimaryKey == null) {
+    throw new ApplicationException("SourceTable does not contain a primary key.");
+}
+      
+string tableName = TableName(SourceTable.FullName);
+string className = ClassName(SourceTable.FullName, Culture);
+string objectName = ObjectName(SourceTable.FullName, Culture);
+
+string pkUrl = ""; // Property1=String(data.Property1), Property2=String(data.Property2), ...
+foreach (ColumnSchema column in SourceTable.PrimaryKey.MemberColumns) {
+    pkUrl += (pkUrl == "" ? "" : " + \"&") + PropertyName(column.Name) + "=\" + String(data." + PropertyName(column.Name) + ")";
+}
+%>
+@model LookupModel
+
+<div class="input-group">
+    <span class="input-group-addon"><img id="@(Model.ValueId + "_Button")" class="z-buttonLookup" /></span>
+    @Html.TextBox(Model.ValueId + "_Lookup", Model.Text, new { @class = AppDefaults.CssClassEditor + " z-lookup" })
+</div>
+
+<div id="Modal_<%= className %>_Lookup" aria-labelledby="Label_<%= className %>_Lookup" class="modal fade col-md-10" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-label="@PresentationResources.Cancel" class="close" data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button>
+                <h4 id="Label_<%= className %>_Lookup" class="modal-title">@<%= className %>Resources.EntityPlural</h4>
+            </div>
+            <div class="modal-body">
+
+                @(Html.EJ().Grid<<%= className %>>("Grid_<%= className %>_Lookup")
+                    .Datasource(datasource => datasource
+                        .Adaptor(AdaptorType.UrlAdaptor)
+                        .URL(Url.Content("~/<%= className %>/DataSource"))
+                    )
+                    .AllowFiltering()
+                    .AllowPaging()
+                    .AllowSearching()
+                    .AllowSorting()
+                    .ClientSideEvents(clientEvent => clientEvent
+                        .ActionFailure("actionFailure_Grid_<%= className %>_Lookup")
+                        .Load("load_Grid_<%= className %>_Lookup")
+                        .RowSelected("rowSelected_Grid_<%= className %>_Lookup")                       
+                    )
+                    .Columns(column =>
+                    {
+<%  int visibles = 0;
+    string visible = "true";
+    foreach (ColumnSchema column in SourceTable.Columns) {
+        bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
+        bool columnIsForeignKey = column.IsForeignKeyMember;
+        bool columnIsIdentity = IsIdentity(column);
+        bool columnIsNullable = column.AllowDBNull;
+        bool isNullable = !IsString(column.DataType) && column.AllowDBNull;
+        
+        if (columnIsPrimaryKey) {
+            if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
+                visible = "true";
+            } else {            
+                visible = "false";
+            }
+        } else if (columnIsForeignKey) {
+            visible = "false";
+        } else if (visibles >= 2) {
+            visible = "false";
+        } else {
+            visibles++;
+            visible = "true";
+        }
+        %>
+                        column.Field("<%= PropertyName(column.Name) %>")<%
+        if (columnIsIdentity) { %>
+                            .AllowEditing(false)<%
+        }
+        if (IsDate(column.DataType)) { %>
+                            .EditType(EditingType.Datepicker)<%
+        } else if (IsDateTime(column.DataType)) { %>
+                            .EditType(EditingType.DateTimePicker)<%
+        } else if (IsDecimal(column.DataType) || IsFloat(column.DataType) || IsInteger(column.DataType)) { %>
+                            .EditType(EditingType.Numeric)<%
+        } else { %>
+                            .EditType(EditingType.String)<%
+        } %>
+                            .HeaderText(<%= className %>Resources.Property<%= PropertyName(column.Name) %>)<%
+        if (columnIsIdentity) { %>
+                            .IsIdentity(true)<%
+        }
+        if (columnIsPrimaryKey) { %>
+                            .IsPrimaryKey(true)<%
+        } %>
+                            .Visible(<%= visible %>)
+                            .Width(<%= IndexWidth(column).Replace("px", "") %>)
+                            .Add();
+<%      if (column.IsForeignKeyMember) {
+            foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+                if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
+                        column.Field("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText")
+                            .AllowEditing(false)
+                            .HeaderText(<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>Resources.EntitySingular)
+                            .Visible(true)
+                            .Width(100)
+                            .Add();
+<%              }
+            }
+        }
+    } %>    
+                    })
+                    .FilterSettings(filter => filter
+                        .EnableCaseSensitivity(false)
+                        .FilterType(FilterType.Excel)
+                        .MaxFilterChoices(System.Int32.MaxValue)
+                    )
+                    .PageSettings(page => page
+                        .PageSize(AppDefaults.SyncfusionRecordsByPage)
+                    )
+                    .SearchSettings(search =>
+                    {
+                        search.Fields(field =>
+                        {
+<%  visibles = 0;
+    visible = "";
+    foreach (ColumnSchema column in SourceTable.Columns) {
+        bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
+        bool columnIsForeignKey = column.IsForeignKeyMember;
+        
+        if (columnIsPrimaryKey) {
+            if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
+                visible = "";
+            } else {            
+                visible = "//";
+            }
+        } else if (columnIsForeignKey) {
+            visible = "//";
+        } else if (visibles >= 2) {
+            visible = "//";
+        } else {
+            visibles++;
+            visible = "";
+        }
+        %>
+                            <%= visible %>field.Add("<%= PropertyName(column.Name) %>");
+<%      if (columnIsForeignKey) {
+            foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+                if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
+                            <%= visible %>field.Add("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText");
+<%              }
+            }
+        }
+    } %>
+                        });
+                    })
+                    .ShowColumnChooser()
+                    .ToolbarSettings(toolbar => toolbar
+                        .ShowToolbar()
+                        .ToolbarItems(items =>
+                        {
+                            items.AddTool(ToolBarItems.Search);
+                        })
+                    )
+                )
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*
+@Html.OperationResult(Model.OperationResult)
+*@
+
+<script>
+    $(function () {
+        try {
+            var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
+    
+            $("#@Model.ValueId").hide();
+    
+            $("#@(Model.ValueId)_Button").click(function () {
+                $("#Modal_<%= className %>_Lookup").modal("show");
+            });
+    
+            $("#@(Model.ValueId)_Lookup").attr("readonly", true);
+            $("#@(Model.ValueId)_Lookup").val(model.Text.toLocaleString("@CultureInfo.CurrentCulture.Name"));
+    
+            $("#Modal_<%= className %>_Lookup").modal("hide");
+        } catch (exception) {
+            alert(zExceptionMessage("_<%= className %>Lookup.cshtml", "function ()", exception));
+        }
+    });
+    
+    function actionFailure_Grid_<%= className %>_Lookup(args) {
+        try {
+            alert(zErrorMessage(args.error.responseText));
+        } catch (exception) {
+            alert(zExceptionMessage("_<%= className %>Lookup.cshtml", "actionFailure_Grid_<%= className %>_Lookup(args)", exception));
+        }
+    }    
+
+    function load_Grid_<%= className %>_Lookup(args) {
+        try {            
+            var culture = "@System.Globalization.CultureInfo.CurrentCulture.Name";
+            this.model.locale = culture;
+        } catch (exception) {
+            alert(zExceptionMessage("_<%= className %>Lookup.cshtml", "load_Grid_<%= className %>_Lookup(args)", exception));
+        }
+    }
+
+    function rowSelected_Grid_<%= className %>_Lookup(args) {
+        try {
+            var data = this.model.currentViewData[args.rowIndex];
+    
+            $("#@(Model.ValueId)").val(data.<%= PropertyName(SourceTable.PrimaryKey.MemberColumns[0].Name) %>);
+    
+            $("#@(Model.ValueId)_Lookup").val(data.LookupText);
+
+            var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
+            var culture = "@System.Globalization.CultureInfo.CurrentCulture.Name";
+            zLookupElements(data, model.Elements, culture);
+    
+            $("#Modal_<%= className %>_Lookup").modal("hide");
+        } catch (exception) {
+            alert(zExceptionMessage("_<%= className %>Lookup.cshtml", "rowSelected_Grid_<%= className %>_Lookup(args)", exception));
+        }
+    }
+</script>

@@ -1,0 +1,73 @@
+<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+
+<%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
+<%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
+
+<%@ Property Name="Database" Type="String" Category="Database" Description="Database [using Namespace.Data.Database]" %>
+<%@ Property Name="SourceTable" Type="SchemaExplorer.TableSchema" Category="Database" Description="Table" %>
+
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Assembly Name="System.Data" %>
+
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Import Namespace="System.Data" %>
+<%
+if (SourceTable.PrimaryKey == null) {
+    throw new ApplicationException("SourceTable does not contain a primary key.");
+}
+      
+string tableName = TableName(SourceTable.FullName);
+string className = ClassName(SourceTable.FullName, Culture);
+string objectName = ObjectName(SourceTable.FullName, Culture);
+
+string fkIsNotNull = ""; // parameter1 != null || parameter2 != null || ...
+foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+    for (int index = 0; index < fkTable.ForeignKeyMemberColumns.Count; index++) {
+        string fkPropertyName = PropertyName(fkTable.ForeignKeyMemberColumns[index].Name);
+        
+        fkIsNotNull += (fkIsNotNull == "" ? "" : " || ") + "Master" + fkPropertyName + " != null";
+    }
+}
+if (fkIsNotNull == "")
+{
+    fkIsNotNull = "false";
+}
+%>
+using EasyLOB.Library;
+using EasyLOB.Security;
+
+namespace <%= Namespace %>
+{
+    public partial class <%= className %>CollectionModel
+    {
+        public ZOperationResult OperationResult { get; set; }
+
+        public ZIsSecurityOperations IsSecurityOperations { get; set; }
+
+        public string ControllerAction { get; set; }
+
+        public string MasterControllerAction { get; set; }
+
+        public bool IsMasterDetail
+        {
+            get
+            {
+                return <%= fkIsNotNull %>;
+            }
+            set { }
+        }
+<%  foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+        string fkClassName = ClassName(fkTable.ForeignKeyTable.FullName, Culture);
+        string fkPropertyName = PropertyName(fkTable.ForeignKeyMemberColumns[0].Name);
+        string pkClassName = ClassName(fkTable.PrimaryKeyTable.FullName, Culture);
+        string pkPropertyName = PropertyName(fkTable.PrimaryKeyMemberColumns[0].Name); %>
+
+        public <%= GetType(fkTable.PrimaryKeyMemberColumns[0].DataType, true) %> Master<%= fkPropertyName %> { get; set; }
+<%  } %>
+
+        public <%= className %>CollectionModel()
+        {
+            OperationResult = new ZOperationResult();
+        }
+    }
+}
