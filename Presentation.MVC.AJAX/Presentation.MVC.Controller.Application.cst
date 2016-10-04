@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Archetype" Type="XCodeSmith.Archetypes" Category="Context" Description="Controllers Archetype" %>
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
@@ -144,7 +144,7 @@ namespace <%= Namespace %>
                 <%= objectName %>CollectionModel.OperationResult.ParseException(exception);
             }
 
-            return PartialView("_<%= className %>Collection", <%= objectName %>CollectionModel);
+            return PartialView(<%= objectName %>CollectionModel);
         }
 
         // GET & POST: <%= className %>/Lookup

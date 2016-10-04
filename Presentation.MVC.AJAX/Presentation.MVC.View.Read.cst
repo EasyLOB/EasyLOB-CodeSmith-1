@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 <%@ Property Name="Database" Type="String" Category="Context" Description="Database" %>
@@ -39,7 +39,7 @@ string objectName = ObjectName(SourceTable.FullName, Culture);;
 {
     @Html.AntiForgeryToken()
 
-    <div id="Partial" class="form-inline">
+    <div class="form-inline">
         @Html.Partial("_<%= className %>Item", Model)
     </div>
     
@@ -52,20 +52,17 @@ string objectName = ObjectName(SourceTable.FullName, Culture);;
 
 <script>
     $(function () {
-        try
-        {
+        try {
             var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
     
-            if (model.IsSecurityOperations.IsCreate) {
-                $("#Partial").show();
+            if (model.IsSecurityOperations.IsRead) {
                 $("#Button_Cancel").show();
             }
             else {
-                $("#Partial").hide();
                 $("#Button_Cancel").show();
             }
         } catch (exception) {
-            zExceptionMessage("<%= className %> Create.cshtml", "function()", exception.message)
+            zExceptionMessage("<%= className %> Read.cshtml", "function", exception.message)
         }
     });
 
@@ -73,7 +70,7 @@ string objectName = ObjectName(SourceTable.FullName, Culture);;
         try {
             $("#OperationResult").html(zAjaxOperationResult(jqXHR));
         } catch (exception) {
-            zExceptionMessage("<%= className %> Create.cshtml", "ajaxFailure", exception.message)
+            zExceptionMessage("<%= className %> Read.cshtml", "ajaxFailure", exception.message)
         }
     }
 
@@ -83,7 +80,7 @@ string objectName = ObjectName(SourceTable.FullName, Culture);;
                 $("#Ajax").load(data.uri);
             }
         } catch (exception) {
-            zExceptionMessage("<%= className %> Create.cshtml", "ajaxSuccess", exception.message)
+            zExceptionMessage("<%= className %> Read.cshtml", "ajaxSuccess", exception.message)
         }
     }
 </script>

@@ -19,46 +19,19 @@ string tableName = TableName(SourceTable.FullName);
 string className = ClassName(SourceTable.FullName, Culture);
 string objectName = ObjectName(SourceTable.FullName, Culture);
 %>
-@model <%= className %>ItemModel
+@model <%= className %>CollectionModel
 
-@{
-    ViewBag.Title = AppHelper.PageTitle(<%= className %>Resources.EntitySingular, PresentationResources.Update);
-}
-
-<h3>@ViewBag.Title</h3>
-
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-
-    <div class="form-inline">
-        @Html.Partial("_<%= className %>Item", Model)
-    </div>
+<div class="form-inline">
+    @Html.Partial("_<%= className %>Collection", Model)
+</div>
     
-    <div class="z-formButtons">
-        @Html.Raw(@Html.ImageLink("Button_Cancel", MvcHelper.ReadUrlDictionary(Context, "<%= className %>"), "z-buttonCancel", PresentationResources.Cancel))
-        <input id="Button_OK" type="image" class="btn btn-default z-buttonOk" title="@PresentationResources.Update" />
-    </div>
-}
-
 @Html.OperationResult(Model.OperationResult)
 
 <script>
     $(function () {
         try {
-            var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
-
-            if (model.IsSecurityOperations.IsUpdate) {
-                $("#Button_Cancel").show();
-                $("#Button_OK").show();
-            }
-            else {
-                $("#Button_Cancel").show();
-                $("#Button_OK").hide();
-            }
         } catch (exception) {
-            zExceptionMessage("<%= className %> Update.cshtml", "function", exception.message)
+            zExceptionMessage("<%= className %> Search.cshtml", "function", exception.message)
         }
     });
 </script>
-

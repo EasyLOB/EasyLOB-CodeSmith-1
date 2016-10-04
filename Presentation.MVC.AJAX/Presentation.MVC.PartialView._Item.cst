@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 <%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
@@ -48,73 +48,72 @@ string keyProperty = PropertyName(keyColumn.Name);
     } %>
 }
 
-@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+<div id="Item_<%= className %>">
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
-@Html.HiddenFor(model => model.ControllerAction)
-@Html.HiddenFor(model => model.IsMasterDetail)
-<%  foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
-        string fkClassName = ClassName(fkTable.ForeignKeyTable.FullName, Culture);
-        ColumnSchema fkColumn = fkTable.ForeignKeyMemberColumns[0];
-        string fkPropertyName = PropertyName(fkColumn.Name);
-            
-        string pkClassName = ClassName(fkTable.PrimaryKeyTable.FullName, Culture);
-        ColumnSchema pkColumn = fkTable.PrimaryKeyMemberColumns[0];
-        string pkPropertyName = PropertyName(pkColumn.Name);
-        pkPropertyName = pkPropertyName == className ? pkPropertyName + fkPropertyName : pkPropertyName; %>
-@Html.HiddenFor(model => model.Master<%= fkPropertyName %>)
-<%  } %>
-
-@{Html.EJ().Tab("Tab_<%= className %>")
-    .ClientSideEvents(clientEvent => clientEvent
-        .ItemActive("itemActive_Tab_<%= className %>")
-    )
-    .Items(data =>
-    {
-        data.Add().ID("TabSheet_<%= className %>_<%= className %>").Text(<%= className %>Resources.EntitySingular).ContentTemplate(@<div class="panel-body">        
-<%  foreach (ColumnSchema column in SourceTable.Columns) {
-        string propertyName = PropertyName(column.Name); 
-        string cssClassLabel = column.AllowDBNull ? "CssClassLabel" : "CssClassLabelRequired"; %>
-            
-<%      if (column.IsForeignKeyMember) {
-            string fkClassName = ClassName(FKTableName(SourceTable, column), Culture);
-            string fkObjectName = ObjectName(fkClassName, Culture); %>
-            <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup col-md-6">
-                @Html.Label(@<%= fkClassName %>Resources.EntitySingular, new { @class = AppDefaults.<%= cssClassLabel %> })
-                @Html.EditorFor(model => model.<%= className %>.<%= propertyName %>, new { id = "<%= className %>_<%= propertyName %>", htmlAttributes = new { @class = AppDefaults.CssClassEditor } })                    
-                @Html.Action("Lookup", "<%= fkClassName %>", new
-                {
-                    Text = <%= fkObjectName %>Text,
-                    ValueId = "<%= className %>_<%= propertyName %>"
-                })
-<%      } else if (IsImage(column)) { %>
-            <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup <%= EditWidth(column) %>">
-                @Html.Label(@<%= className %>Resources.Property<%= propertyName %>, new { @class = AppDefaults.<%= cssClassLabel %> })
-                <img src="@<%= objectName %>_<%= propertyName %>_Source" class="z-image" />
-<%      } else { %>
-            <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup <%= EditWidth(column) %>">
-                @Html.LabelFor(model => model.<%= className %>.<%= propertyName %>, new { @class = AppDefaults.<%= cssClassLabel %> })
-                @Html.EditorFor(model => model.<%= className %>.<%= propertyName %>, new { id = "<%= className %>_<%= propertyName %>", htmlAttributes = new { @class = AppDefaults.CssClassEditor } })
+    @Html.HiddenFor(model => model.ControllerAction)
+    @Html.HiddenFor(model => model.IsMasterDetail)
+<%      foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+            string fkClassName = ClassName(fkTable.ForeignKeyTable.FullName, Culture);
+            ColumnSchema fkColumn = fkTable.ForeignKeyMemberColumns[0];
+            string fkPropertyName = PropertyName(fkColumn.Name);
+                
+            string pkClassName = ClassName(fkTable.PrimaryKeyTable.FullName, Culture);
+            ColumnSchema pkColumn = fkTable.PrimaryKeyMemberColumns[0];
+            string pkPropertyName = PropertyName(pkColumn.Name);
+            pkPropertyName = pkPropertyName == className ? pkPropertyName + fkPropertyName : pkPropertyName; %>
+    @Html.HiddenFor(model => model.Master<%= fkPropertyName %>)
 <%      } %>
-                @Html.ValidationMessageFor(model => model.<%= className %>.<%= propertyName %>, "", new { @class = AppDefaults.CssClassValidator })
-            </div>
-<%  } %>
 
-        </div>);
-<%  foreach (TableKeySchema primaryKey in SourceTable.PrimaryKeys) {
-        string pkClassName = ClassName(primaryKey.ForeignKeyTable.Name, Culture);
-        int index = 0;
-        foreach (ColumnSchema column in primaryKey.PrimaryKeyMemberColumns) {
-            string fkPropertyName = PropertyName(column.Name);
-            string pkPropertyName = PropertyName(primaryKey.ForeignKeyMemberColumns[index].Name); %>
-        data.Add().ID("TabSheet_<%= className %>_<%= pkClassName %>").Text(<%= pkClassName %>Resources.EntityPlural).ContentTemplate(@<div class="panel-body">    
-            <div id="Ajax_<%= className %>_<%= pkClassName %>"></div>
-        </div>);
-<%          index++;
-        }
-    } %>
-    })
-    .Render();
-}
+    @{Html.EJ().Tab("Tab_<%= className %>")
+        .Items(data =>
+        {
+            data.Add().ID("TabSheet_<%= className %>_<%= className %>").Text(<%= className %>Resources.EntitySingular).ContentTemplate(@<div class="panel-body">        
+<%      foreach (ColumnSchema column in SourceTable.Columns) {
+            string propertyName = PropertyName(column.Name); 
+            string cssClassLabel = column.AllowDBNull ? "CssClassLabel" : "CssClassLabelRequired"; %>
+                
+<%          if (column.IsForeignKeyMember) {
+                string fkClassName = ClassName(FKTableName(SourceTable, column), Culture);
+                string fkObjectName = ObjectName(fkClassName, Culture); %>
+                <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup col-md-6">
+                    @Html.Label(@<%= fkClassName %>Resources.EntitySingular, new { @class = AppDefaults.<%= cssClassLabel %> })
+                    @Html.EditorFor(model => model.<%= className %>.<%= propertyName %>, new { id = "<%= className %>_<%= propertyName %>", htmlAttributes = new { @class = AppDefaults.CssClassEditor } })                    
+                    @Html.Action("Lookup", "<%= fkClassName %>", new
+                    {
+                        Text = <%= fkObjectName %>Text,
+                        ValueId = "<%= className %>_<%= propertyName %>"
+                    })
+<%          } else if (IsImage(column)) { %>
+                <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup <%= EditWidth(column) %>">
+                    @Html.Label(@<%= className %>Resources.Property<%= propertyName %>, new { @class = AppDefaults.<%= cssClassLabel %> })
+                    <img src="@<%= objectName %>_<%= propertyName %>_Source" class="z-image" />
+<%          } else { %>
+                <div id="Group_<%= className %>_<%= propertyName %>" class="@AppDefaults.CssClassGroup <%= EditWidth(column) %>">
+                    @Html.LabelFor(model => model.<%= className %>.<%= propertyName %>, new { @class = AppDefaults.<%= cssClassLabel %> })
+                    @Html.EditorFor(model => model.<%= className %>.<%= propertyName %>, new { id = "<%= className %>_<%= propertyName %>", htmlAttributes = new { @class = AppDefaults.CssClassEditor } })
+<%          } %>
+                    @Html.ValidationMessageFor(model => model.<%= className %>.<%= propertyName %>, "", new { @class = AppDefaults.CssClassValidator })
+                </div>
+<%      } %>
+
+            </div>);
+<%      foreach (TableKeySchema primaryKey in SourceTable.PrimaryKeys) {
+            string pkClassName = ClassName(primaryKey.ForeignKeyTable.Name, Culture);
+            int index = 0;
+            foreach (ColumnSchema column in primaryKey.PrimaryKeyMemberColumns) {
+                string fkPropertyName = PropertyName(column.Name);
+                string pkPropertyName = PropertyName(primaryKey.ForeignKeyMemberColumns[index].Name); %>
+            data.Add().ID("TabSheet_<%= className %>_<%= pkClassName %>").Text(<%= pkClassName %>Resources.EntityPlural).ContentTemplate(@<div class="panel-body">    
+                <div id="Ajax_<%= className %>_<%= pkClassName %>"></div>
+            </div>);
+<%              index++;
+            }
+        } %>
+        })
+        .Render();
+    }
+</div>
 
 <script>
     // Validate hidden fields
@@ -128,6 +127,8 @@ string keyProperty = PropertyName(keyColumn.Name);
             var <%= objectName %>Dictionary = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(DataHelper.GetDataDictionaryAttribute(typeof(<%= className %>)))); }();
             var controllerAction = model.ControllerAction == null ? "" : model.ControllerAction.toLowerCase();
             
+            $(document).prop("title", "@(ViewBag.Title)");
+
             var ajaxUrl = "";
 <%  foreach (TableKeySchema primaryKey in SourceTable.PrimaryKeys) {
         string pkClassName = ClassName(primaryKey.ForeignKeyTable.Name, Culture);
@@ -141,9 +142,19 @@ string keyProperty = PropertyName(keyColumn.Name);
 <%          index++;
         }
     } %>
-            ej.widget.init($("#Ajax"));
-            $(document).prop("title", "@(ViewBag.Title)");            
-    
+
+            ej.widget.init($("#Item_<%= className %>"));
+
+            if ((model.ControllerAction = "create" && model.IsSecurityOperations.IsCreate) ||
+                (model.ControllerAction = "read" && model.IsSecurityOperations.IsRead) ||
+                (model.ControllerAction = "update" && model.IsSecurityOperations.IsUpdate) ||
+                (model.ControllerAction = "delete" && model.IsSecurityOperations.IsDelete)) {
+                $("#Item_<%= className %>").css("display", "block");
+            }
+            else {
+                $("#Item_<%= className %>").css("display", "none");
+            }
+
             var readonly = (controllerAction == "delete" || controllerAction == "read");
             $("input.form-control").not(":input[type=button], :input[type=image], :input[type=reset], :input[type=submit]").attr("readonly", readonly);
             if (readonly) {
@@ -186,37 +197,11 @@ string keyProperty = PropertyName(keyColumn.Name);
             //ColumnSchema pkColumn = SourceTable.PrimaryKeys[i].PrimaryKeyMemberColumns[ii];
             string pkClassName = ClassName(SourceTable.PrimaryKeys[i].ForeignKeyTable.Name, Culture); %>
             // <%= pkClassName %>
-            var grid<%= pkClassName %> = $("#Grid_<%= pkClassName %>");
-            grid<%= pkClassName %>.css("display", display);
+            $("#Grid_<%= pkClassName %>").css("display", display);
 <%      }
     } %>
         } catch (exception) {
-            alert(zExceptionMessage("_<%= className %>Item.cshtml", "function()", exception));
+            alert(zExceptionMessage("_<%= className %>Item.cshtml", "function", exception));
         }
-    });
-
-    function itemActive_Tab_<%= className %>(args) { // IE
-        try {
-<%  if(SourceTable.PrimaryKeys.Count > 0) { %>
-            switch(args.activeIndex) {
-<%      int index = 1;
-        for (int i = 0; i < SourceTable.PrimaryKeys.Count; i++) {
-            for (int ii = 0; ii < SourceTable.PrimaryKeys[i].PrimaryKeyMemberColumns.Count; ii++) {
-                //ColumnSchema pkColumn = SourceTable.PrimaryKeys[i].PrimaryKeyMemberColumns[ii];
-                string pkClassName = ClassName(SourceTable.PrimaryKeys[i].ForeignKeyTable.Name, Culture); %>
-            // <%= pkClassName %>
-                case <%= index++.ToString() %>:
-                    $("#Grid_<%= pkClassName %>").ejGrid({
-                        allowScrolling: true,
-                        scrollSettings: { width: "100%" }
-                    });
-                    break;
-<%          }
-        } %>            
-            }            
-<%  } %>        
-        } catch (exception) {
-            alert(zExceptionMessage("_<%= className %>Item.cshtml", "itemActive_Tab_<%= className %>(args)", exception));
-        }
-    }    
+    });    
 </script>

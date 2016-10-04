@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 <%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
@@ -26,173 +26,175 @@ foreach (ColumnSchema column in SourceTable.PrimaryKey.MemberColumns) {
 %>
 @model <%= className %>CollectionModel
 
-@(Html.EJ().Grid<<%= className %>>("Grid_<%= className %>")
-    .Datasource(datasource => datasource
-        .Adaptor(AdaptorType.UrlAdaptor)
-        .URL(Url.Content("~/<%= className %>/DataSource"))
-    )
-    .AllowFiltering()
-    .AllowGrouping()
-    .AllowPaging()
-    .AllowResizing()
-    .AllowScrolling()
-    .AllowSearching()
-    .AllowSorting()
-    .ClientSideEvents(clientEvent => clientEvent
-        .ActionBegin("actionBegin_Grid_<%= className %>")
-        .ActionFailure("actionFailure_Grid_<%= className %>")
-        .Load("load_Grid_<%= className %>")
-        .ToolbarClick("toolbarClick_Grid_<%= className %>")
-    )
-    .Columns(column =>
-    {
-<%  int visibles = 0;
-    string visible = "true";
-    foreach (ColumnSchema column in SourceTable.Columns) {
-        bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
-        bool columnIsForeignKey = column.IsForeignKeyMember;
-        bool columnIsIdentity = IsIdentity(column);
-        bool columnIsNullable = column.AllowDBNull;
-        bool isNullable = !IsString(column.DataType) && column.AllowDBNull;
-        
-        if (columnIsPrimaryKey) {
-            if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
-                visible = "true";
-            } else {            
+<div id="Collection_<%= className %>">
+    @(Html.EJ().Grid<<%= className %>>("Grid_<%= className %>")
+        .Datasource(datasource => datasource
+            .Adaptor(AdaptorType.UrlAdaptor)
+            .URL(Url.Content("~/<%= className %>/DataSource"))
+        )
+        .AllowFiltering()
+        .AllowGrouping()
+        .AllowPaging()
+        .AllowResizing()
+        .AllowScrolling()
+        .AllowSearching()
+        .AllowSorting()
+        .ClientSideEvents(clientEvent => clientEvent
+            .ActionBegin("actionBegin_Grid_<%= className %>")
+            .ActionFailure("actionFailure_Grid_<%= className %>")
+            .Load("load_Grid_<%= className %>")
+            .ToolbarClick("toolbarClick_Grid_<%= className %>")
+        )
+        .Columns(column =>
+        {
+<%      int visibles = 0;
+        string visible = "true";
+        foreach (ColumnSchema column in SourceTable.Columns) {
+            bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
+            bool columnIsForeignKey = column.IsForeignKeyMember;
+            bool columnIsIdentity = IsIdentity(column);
+            bool columnIsNullable = column.AllowDBNull;
+            bool isNullable = !IsString(column.DataType) && column.AllowDBNull;
+            
+            if (columnIsPrimaryKey) {
+                if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
+                    visible = "true";
+                } else {            
+                    visible = "false";
+                }
+            } else if (columnIsForeignKey) {
                 visible = "false";
+            } else if (visibles >= 2) {
+                visible = "false";
+            } else {
+                visibles++;
+                visible = "true";
             }
-        } else if (columnIsForeignKey) {
-            visible = "false";
-        } else if (visibles >= 2) {
-            visible = "false";
-        } else {
-            visibles++;
-            visible = "true";
-        }
-        %>
-        column.Field("<%= PropertyName(column.Name) %>")<%
-        if (columnIsIdentity) { %>
-            .AllowEditing(false)<%
-        }
-        if (IsDate(column.DataType)) { %>
-            .EditType(EditingType.Datepicker)
-            .Format(SyncfusionPatternResources.GridFormat_Date)<%
-        } else if (IsTime(column.DataType)) { %>
-            .EditType(EditingType.DateTimePicker)
-            .Format(SyncfusionPatternResources.GridFormat_Time)<%
-        } else if (IsDateTime(column.DataType)) { %>
-            .EditType(EditingType.DateTimePicker)
-            .Format(SyncfusionPatternResources.GridFormat_DateTime)<%
-        } else if (IsDecimal(column.DataType) || IsFloat(column.DataType) || IsInteger(column.DataType)) { %>
-            .EditType(EditingType.Numeric)<%
-            if (IsDecimal(column.DataType) || IsFloat(column.DataType)) { %>
-            .Format(SyncfusionPatternResources.GridFormat_Float)<%
+            %>
+            column.Field("<%= PropertyName(column.Name) %>")<%
+            if (columnIsIdentity) { %>
+                .AllowEditing(false)<%
+            }
+            if (IsDate(column.DataType)) { %>
+                .EditType(EditingType.Datepicker)
+                .Format(SyncfusionPatternResources.GridFormat_Date)<%
+            } else if (IsTime(column.DataType)) { %>
+                .EditType(EditingType.DateTimePicker)
+                .Format(SyncfusionPatternResources.GridFormat_Time)<%
+            } else if (IsDateTime(column.DataType)) { %>
+                .EditType(EditingType.DateTimePicker)
+                .Format(SyncfusionPatternResources.GridFormat_DateTime)<%
+            } else if (IsDecimal(column.DataType) || IsFloat(column.DataType) || IsInteger(column.DataType)) { %>
+                .EditType(EditingType.Numeric)<%
+                if (IsDecimal(column.DataType) || IsFloat(column.DataType)) { %>
+                .Format(SyncfusionPatternResources.GridFormat_Float)<%
+                } else { %>
+                .Format(SyncfusionPatternResources.GridFormat_Integer)<%
+                }
             } else { %>
-            .Format(SyncfusionPatternResources.GridFormat_Integer)<%
+                .EditType(EditingType.String)<%
+            } %>
+                .HeaderText(<%= className %>Resources.Property<%= PropertyName(column.Name) %>)<%
+            if (columnIsIdentity) { %>
+                .IsIdentity(true)<%
             }
-        } else { %>
-            .EditType(EditingType.String)<%
-        } %>
-            .HeaderText(<%= className %>Resources.Property<%= PropertyName(column.Name) %>)<%
-        if (columnIsIdentity) { %>
-            .IsIdentity(true)<%
-        }
-        if (columnIsPrimaryKey) { %>
-            .IsPrimaryKey(true)<%
-        }
-        if (IsDecimal(column.DataType) || IsFloat(column.DataType) || IsInteger(column.DataType)) { %>
-            .TextAlign(TextAlign.Right)<%
-        } %>
-            .Visible(<%= visible %>)
-            .Width(<%= IndexWidth(column).Replace("px", "") %>)
-            .Add();
-<%      if (columnIsForeignKey) {
-            foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
-                if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
-        column.Field("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText")
-            .AllowEditing(false)
-            .HeaderText(<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>Resources.EntitySingular)
-            .Visible(true)
-            .Width(100)
-            .Add();
-<%              }
+            if (columnIsPrimaryKey) { %>
+                .IsPrimaryKey(true)<%
             }
-        }
-    } %>    
-    })
-    .EditSettings(edit => edit
-        .AllowAdding()
-        .AllowDeleting()
-        .AllowEditing()
-    )
-    .EnablePersistence()
-    .FilterSettings(filter => filter
-        .EnableCaseSensitivity(false)
-        .FilterType(FilterType.Excel)
-        .MaxFilterChoices(System.Int32.MaxValue)
-    )
-    .Mappers(map => map
-        .ExportToExcelAction(Url.Content("~/<%= className %>/ExportToExcel"))
-        .ExportToPdfAction(Url.Content("~/<%= className %>/ExportToPdf"))
-        .ExportToWordAction(Url.Content("~/<%= className %>/ExportToWord"))
-    )
-    .PageSettings(page => page
-        .PageSize(AppDefaults.SyncfusionRecordsByPage)
-    )
-    .SearchSettings(search =>
-    {
-        search.Fields(field =>
+            if (IsDecimal(column.DataType) || IsFloat(column.DataType) || IsInteger(column.DataType)) { %>
+                .TextAlign(TextAlign.Right)<%
+            } %>
+                .Visible(<%= visible %>)
+                .Width(<%= IndexWidth(column).Replace("px", "") %>)
+                .Add();
+<%          if (columnIsForeignKey) {
+                foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+                    if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
+            column.Field("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText")
+                .AllowEditing(false)
+                .HeaderText(<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>Resources.EntitySingular)
+                .Visible(true)
+                .Width(100)
+                .Add();
+<%                  }
+                }
+            }
+        } %>    
+        })
+        .EditSettings(edit => edit
+            .AllowAdding()
+            .AllowDeleting()
+            .AllowEditing()
+        )
+        .EnablePersistence()
+        .FilterSettings(filter => filter
+            .EnableCaseSensitivity(false)
+            .FilterType(FilterType.Excel)
+            .MaxFilterChoices(System.Int32.MaxValue)
+        )
+        .Mappers(map => map
+            .ExportToExcelAction(Url.Content("~/<%= className %>/ExportToExcel"))
+            .ExportToPdfAction(Url.Content("~/<%= className %>/ExportToPdf"))
+            .ExportToWordAction(Url.Content("~/<%= className %>/ExportToWord"))
+        )
+        .PageSettings(page => page
+            .PageSize(AppDefaults.SyncfusionRecordsByPage)
+        )
+        .SearchSettings(search =>
         {
-<%  visibles = 0;
-    visible = "";
-    foreach (ColumnSchema column in SourceTable.Columns) {
-        bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
-        bool columnIsForeignKey = column.IsForeignKeyMember;
-        
-        if (columnIsPrimaryKey) {
-            if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
-                visible = "";
-            } else {            
+            search.Fields(field =>
+            {
+<%      visibles = 0;
+        visible = "";
+        foreach (ColumnSchema column in SourceTable.Columns) {
+            bool columnIsPrimaryKey = column.IsPrimaryKeyMember;
+            bool columnIsForeignKey = column.IsForeignKeyMember;
+            
+            if (columnIsPrimaryKey) {
+                if (SourceTable.PrimaryKey.MemberColumns.Count == SourceTable.Columns.Count) {
+                    visible = "";
+                } else {            
+                    visible = "//";
+                }
+            } else if (columnIsForeignKey) {
                 visible = "//";
+            } else if (visibles >= 2) {
+                visible = "//";
+            } else {
+                visibles++;
+                visible = "";
             }
-        } else if (columnIsForeignKey) {
-            visible = "//";
-        } else if (visibles >= 2) {
-            visible = "//";
-        } else {
-            visibles++;
-            visible = "";
-        }
-        %>
-            <%= visible %>field.Add("<%= PropertyName(column.Name) %>");
-<%      if (columnIsForeignKey) {
-            foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
-                if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
-            field.Add("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText");
-<%              }
+            %>
+                <%= visible %>field.Add("<%= PropertyName(column.Name) %>");
+<%          if (columnIsForeignKey) {
+                foreach (TableKeySchema fkTable in SourceTable.ForeignKeys) {
+                    if (fkTable.ForeignKeyMemberColumns[0].Name == column.Name) { %>
+                field.Add("<%= ClassName(fkTable.PrimaryKeyTable.FullName, Culture) %>LookupText");
+<%                  }
+                }
             }
-        }
-    } %>
-        });
-    })
-    .ShowColumnChooser()
-    .ToolbarSettings(toolbar => toolbar
-        .CustomToolbarItems(new List<object>() {
-            new Syncfusion.JavaScript.Models.CustomToolbarItem() { TemplateID = "#Toolbar_Grid_<%= className %>" }
+        } %>
+            });
         })
-        .ShowToolbar()
-        .ToolbarItems(items =>
-        {
-            items.AddTool(ToolBarItems.Search);
-            items.AddTool(ToolBarItems.Add);
-            items.AddTool(ToolBarItems.Edit);
-            items.AddTool(ToolBarItems.Delete);
-            items.AddTool(ToolBarItems.ExcelExport);
-            items.AddTool(ToolBarItems.PdfExport);
-            items.AddTool(ToolBarItems.WordExport);
-        })
+        .ShowColumnChooser()
+        .ToolbarSettings(toolbar => toolbar
+            .CustomToolbarItems(new List<object>() {
+                new Syncfusion.JavaScript.Models.CustomToolbarItem() { TemplateID = "#Toolbar_Grid_<%= className %>" }
+            })
+            .ShowToolbar()
+            .ToolbarItems(items =>
+            {
+                items.AddTool(ToolBarItems.Search);
+                items.AddTool(ToolBarItems.Add);
+                items.AddTool(ToolBarItems.Edit);
+                items.AddTool(ToolBarItems.Delete);
+                items.AddTool(ToolBarItems.ExcelExport);
+                items.AddTool(ToolBarItems.PdfExport);
+                items.AddTool(ToolBarItems.WordExport);
+            })
+        )
     )
-)
+</div>
 
 @Html.OperationResult(Model.OperationResult)
 
@@ -204,6 +206,13 @@ foreach (ColumnSchema column in SourceTable.PrimaryKey.MemberColumns) {
     $(function () {
         try {
             var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
+
+            if (model.IsSecurityOperations.IsSearch) {
+                $("#Collection_<%= className %>").css("display", "block");
+            }
+            else {
+                $("#Collection_<%= className %>").css("display", "none");
+            }
 
             var grid<%= className %> = $("#Grid_<%= className %>");
             var ejGrid<%= className %> = grid<%= className %>.data("ejGrid");

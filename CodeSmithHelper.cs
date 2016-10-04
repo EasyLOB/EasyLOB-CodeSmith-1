@@ -1,4 +1,4 @@
-using CodeSmith.Engine;
+﻿using CodeSmith.Engine;
 using SchemaExplorer;
 using System;
 using System.Collections;
@@ -453,8 +453,8 @@ namespace XCodeSmith
                 CreateDirectory(outputC);
                 
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Collection.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Collection.cshtml", culture);  
-                GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Item.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Item.cshtml", culture);
-                GenerateTable(input + "/Presentation/Presentation.MVC.PartialView._Lookup.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Lookup.cshtml", culture);  
+                //GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Item.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Item.cshtml", culture);
+                //GenerateTable(input + "/Presentation/Presentation.MVC.PartialView._Lookup.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Lookup.cshtml", culture);  
             }
         }
 
@@ -493,6 +493,7 @@ namespace XCodeSmith
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.View.Delete.cst", table, myNamespace, myDatabase, outputC + "/" + "Delete.cshtml", culture);
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.View.Index.cst", table, myNamespace, myDatabase, outputC + "/" + "Index.cshtml", culture);
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.View.Read.cst", table, myNamespace, myDatabase, outputC + "/" + "Read.cshtml", culture);
+                GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.View.Search.cst", table, myNamespace, myDatabase, outputC + "/" + "Search.cshtml", culture);
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.View.Update.cst", table, myNamespace, myDatabase, outputC + "/" + "Update.cshtml", culture);
             }
         }

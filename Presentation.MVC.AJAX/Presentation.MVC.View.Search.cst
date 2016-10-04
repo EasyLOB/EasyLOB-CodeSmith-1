@@ -21,15 +21,17 @@ string objectName = ObjectName(SourceTable.FullName, Culture);
 %>
 @model <%= className %>CollectionModel
 
-<div id="Ajax">
+<div class="form-inline">
+    @Html.Partial("_<%= className %>Collection", Model)
 </div>
+
+<div id="OperationResult"></div>
 
 <script>
     $(function () {
         try {
-            $("#Ajax").load("@(Url.Action("Search", "<%= className %>", null, Request.Url.Scheme))");
         } catch (exception) {
-            zExceptionMessage("<%= className %> Index.cshtml", "function", exception.message)
+            zExceptionMessage("<%= className %> Search.cshtml", "function", exception.message)
         }
     });
 </script>

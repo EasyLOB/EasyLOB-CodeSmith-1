@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 <%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
@@ -209,16 +209,6 @@ namespace <%= Namespace %>
     } %>
 
         #endregion Properties
-
-        #region Properties ZDataBase
-
-        public override string LookupText
-        {
-            get { return base.LookupText; }
-            set { }
-        }
-
-        #endregion Properties ZDataBase
 <%  if (SourceTable.ForeignKeys.Count > 0) { %>
 
         #region Associations (FK)
@@ -244,7 +234,7 @@ namespace <%= Namespace %>
 <%      foreach (TableKeySchema primaryKey in SourceTable.PrimaryKeys) {
             string pkClassName = ClassName(primaryKey.ForeignKeyTable.Name, Culture); %>
 
-        public virtual IList<<%= pkClassName %>> <%= Plural(pkClassName, Culture) %> { get; set; }
+        public virtual IList<<%= pkClassName %>> <%= Plural(pkClassName, Culture) %> { get; }
 <%      } %>
 
         #endregion Collections (PK)

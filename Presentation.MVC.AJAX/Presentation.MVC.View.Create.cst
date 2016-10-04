@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 <%@ Property Name="Namespace" Type="String" Category="Context" Description="Namespace [using Namespace]" %>
@@ -40,7 +40,7 @@ string objectName = ObjectName(SourceTable.FullName, Culture);
 {
     @Html.AntiForgeryToken()
 
-    <div id="Partial" class="form-inline">
+    <div class="form-inline">
         @Html.Partial("_<%= className %>Item", Model)
     </div>
 
@@ -54,22 +54,19 @@ string objectName = ObjectName(SourceTable.FullName, Culture);
 
 <script>
     $(function () {
-        try
-        {
+        try {
             var model = function () { return @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model)); }();
     
             if (model.IsSecurityOperations.IsCreate) {
-                $("#Partial").show();
                 $("#Button_Cancel").show();
                 $("#Button_OK").show();
             }
             else {
-                $("#Partial").hide();
                 $("#Button_Cancel").show();
                 $("#Button_OK").hide();
             }
         } catch (exception) {
-            zExceptionMessage("<%= className %> Create.cshtml", "function()", exception.message)
+            zExceptionMessage("<%= className %> Create.cshtml", "function", exception.message)
         }
     });
 
