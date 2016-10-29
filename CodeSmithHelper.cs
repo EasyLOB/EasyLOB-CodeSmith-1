@@ -323,6 +323,7 @@ namespace XCodeSmith
         #endregion
 
         #region Generate Presentation
+        
         public void GeneratePresentationCollectionModel(TableSchemaCollection sourceTables,
             string myNamespace, string myDatabase, string output, Cultures culture,
             string ajax)
@@ -378,6 +379,35 @@ namespace XCodeSmith
                 string className = ClassName(table.FullName, culture);
 
                 GenerateTable(input + "/Presentation/Presentation.Model.ItemModel.cst", table, myNamespace, myDatabase, output + "/" + className + "ItemModel.cs", culture);
+            }
+        }
+
+        public void GeneratePresentationViewModel(TableSchemaCollection sourceTables,
+            string myNamespace, string myDatabase, string output, Cultures culture,
+            string ajax)
+        {
+            ajax = String.IsNullOrEmpty(ajax) ? "" : ajax;
+
+            string input = this.CodeTemplateInfo.DirectoryName;
+
+            if (output.Trim() == "")
+            {
+                output = DefaultOutput;
+            }
+
+            if (IsNullOrEmpty(myDatabase))
+            {
+                myDatabase = myNamespace;
+            }
+
+            output = output + "/" + myNamespace + ajax + "/Models/" + myDatabase + "/ViewModels";
+            CreateDirectory(output);
+
+            foreach (TableSchema table in sourceTables)
+            {
+                string className = ClassName(table.FullName, culture);
+
+                GenerateTable(input + "/Presentation/Presentation.Model.ViewModel.cst", table, myNamespace, myDatabase, output + "/" + className + "ViewModel.cs", culture);
             }
         }
 
@@ -677,32 +707,6 @@ namespace XCodeSmith
                 string className = ClassName(table.FullName, culture);
                 
                 GenerateTable(input + "/Data/Data.Resource.cst", table, myNamespace, myDatabase, output + "/" + className + "Resources.resx", culture);
-            }
-        }
-
-        public void GenerateDataViewModel(TableSchemaCollection sourceTables,
-            string myNamespace, string myDatabase, string output, Cultures culture)
-        {
-            string input = this.CodeTemplateInfo.DirectoryName;
-
-            if (output.Trim() == "")
-            {
-                output = DefaultOutput;
-            }
-
-            if (IsNullOrEmpty(myDatabase))
-            {
-                myDatabase = myNamespace;
-            }
-
-            output = output + "/" + myNamespace + "/ViewModels";
-            CreateDirectory(output);
-
-            foreach (TableSchema table in sourceTables)
-            {
-                string className = ClassName(table.FullName, culture);
-
-                GenerateTable(input + "/Data/Data.ViewModel.cst", table, myNamespace, myDatabase, output + "/" + className + "ViewModel.cs", culture);
             }
         }
 

@@ -10,6 +10,7 @@
 
 <%@ Property Name="DoPresentationModelCollection" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: Collection Models ?" %>
 <%@ Property Name="DoPresentationModelItem" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: Item Models ?" %>
+<%@ Property Name="DoPresentationModelView" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: View Models ?" %>
 <%@ Property Name="DoPresentationMvcController" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: MVC Controllers ?" %>
 <%@ Property Name="DoPresentationMvcPartialView" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: MVC Partial Views ?" %>
 <%@ Property Name="DoPresentationMvcView" Type="Boolean" Default="False" Category="Do" Description="Generate Presentation :: MVC Views ?" %>
@@ -34,6 +35,11 @@ if (DoPresentationModelItem)
     GeneratePresentationItemModel(SourceTables, Namespace, Database, Output, Culture, ".AJAX");
 }
 
+if (DoPresentationModelView)
+{
+    GeneratePresentationViewModel(SourceTables, Namespace, Database, Output, Culture, ".AJAX");
+}
+
 if (DoPresentationMvcPartialView)
 {
     GeneratePresentationMvcPartialView(SourceTables, Namespace, Database, Output, Culture, ".AJAX");
@@ -43,5 +49,4 @@ if (DoPresentationMvcView)
 {
     GeneratePresentationMvcView(SourceTables, Namespace, Database, Output, Culture, ".AJAX");
 }
-
 %>
