@@ -1,4 +1,4 @@
-<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" Src="..\CodeSmithHelper.cs" Inherits="XCodeSmith.CodeSmithHelper" Debug="False" Description="" %>
 
 <%@ Property Name="Culture" Type="XCodeSmith.Cultures" Category="Context" Description="Culture for Plural Rules" %>
 
@@ -16,12 +16,9 @@
             items.Add().Url(@Url.Content("~/Home/Contact")).Id("Contact").Text(MenuResources.Contact);
             items.Add().Url("").Id("<%= Database %>").Text("<%= Database %>").Children(child =>
             {
-                child.Add().Url("").Text("<%= Database %>").Children(child1 =>
-                {
 <%  foreach (TableSchema table in SourceTables) { %>
-                    child1.Add().Url(@Url.Content("~/<%= ClassName(table.Name, Culture) %>")).Text(<%= ClassName(table.Name, Culture) %>Resources.EntityPlural);
+                child.Add().Url(@Url.Content("~/<%= ClassName(table.Name, Culture) %>")).Text(<%= ClassName(table.Name, Culture) %>Resources.EntityPlural);
 <%  } %>
-                });
             });
             items.Add().Url("").Text(AuditTrailResources.AuditTrail).Children(child =>
             {

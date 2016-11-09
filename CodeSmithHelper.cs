@@ -483,8 +483,8 @@ namespace XCodeSmith
                 CreateDirectory(outputC);
                 
                 GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Collection.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Collection.cshtml", culture);  
-                //GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Item.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Item.cshtml", culture);
-                //GenerateTable(input + "/Presentation/Presentation.MVC.PartialView._Lookup.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Lookup.cshtml", culture);  
+                GenerateTable(input + "/Presentation.MVC" + ajax + "/Presentation.MVC.PartialView._Item.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Item.cshtml", culture);
+                GenerateTable(input + "/Presentation/Presentation.MVC.PartialView._Lookup.cst", table, myNamespace, myDatabase, outputC + "/_" + className + "Lookup.cshtml", culture);  
             }
         }
 
